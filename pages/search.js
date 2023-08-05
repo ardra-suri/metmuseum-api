@@ -1,14 +1,18 @@
 import { Form, Row, Col, Button } from 'react-bootstrap'
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
+import { useAtom } from 'jotai';
+import { searchHistoryAtom } from '@/store';
+import { addToHistory } from '@/lib/userData';
 
 export default function Search() {
+
+    const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom)
     const { register, handleSubmit, formState: { errors } } = useForm();
     const router = useRouter();
 
-    const submitForm = (data) => {
+    const submitForm = async (data) => {
         var queryString = ''
-
         queryString += data.searchBy + '=true' + '&'
         data.geoLocation ? queryString += 'geoLocation=' + data.geoLocation + '&' : null
         data.medium ? queryString += 'medium=' + data.medium + '&' : null
@@ -16,7 +20,7 @@ export default function Search() {
         data.isHighlight ? queryString += 'isHighlight=' + data.isHighlight + '&' : null
         queryString += 'q=' + data.q
 
-        console.log(queryString);
+        setSearchHistory(await addToHistory(queryString));
         router.push(`/artwork?${queryString}`);
     }
 
